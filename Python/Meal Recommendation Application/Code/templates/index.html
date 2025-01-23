@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Bootstrap CSS for the modal -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for color-coded food suggestions */
+        .low-calorie {
+            color: green;
+        }
+        .medium-calorie {
+            color: orange;
+        }
+        .high-calorie {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Food Recommendation System</h1>
+        <form action="/get-recommendations" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required><br>
+
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" name="height" required><br>
+
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" name="weight" required><br>
+
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="gym_enthusiast">Gym Enthusiast</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="specific_conditions">Specific Conditions</option>
+            </select><br>
+
+            <label for="diet_preference">Diet Preference:</label>
+            <select id="diet_preference" name="diet_preference" required>
+                <option value="veg">Vegetarian</option>
+                <option value="non-veg">Non-Vegetarian</option>
+            </select>
+
+            <label for="num_suggestions">Number of Suggestions:</label>
+            <select id="num_suggestions" name="num_suggestions" required>
+                <option value="3">3</option>
+                <option value="5">5</option>
+            </select><br>
+
+            <!-- Single Submit Button -->
+            <button type="submit" class="btn btn-primary">Get Recommendations</button>
+        </form>
+
+        {% if recommendations %}
+        <!-- Modal -->
+        <div class="modal fade" id="recommendationsModal" tabindex="-1" aria-labelledby="recommendationsModalLabel" aria-hidden="true" style="display: block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="recommendationsModalLabel">Recommended Foods</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Name: {{ name }}</h6>
+                        <h6>Age: {{ age }}</h6>
+                        <h6>Height: {{ height }} cm</h6>
+                        <h6>Weight: {{ weight }} kg</h6>
+                        <h6>Category: {{ category }}</h6>
+                        <h6>Diet Preference: {{ diet_preference }}</h6>
+                        <h6>Number of Suggestions: {{ num_suggestions }}</h6>
+                        <h6>Recommended Foods:</h6>
+                        <ul>
+                            {% for food, calories in recommendations %}
+                            <li class="{% if calories < 100 %}low-calorie{% elif calories < 300 %}medium-calorie{% else %}high-calorie{% endif %}">
+                                {{ food }} - {{ calories }} cal
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <h6>Total Calories: {{ total_calories }} cal</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        // Automatically show the modal if recommendations exist
+        {% if recommendations %}
+        var myModal = new bootstrap.Modal(document.getElementById('recommendationsModal'), {});
+        myModal.show();
+        {% endif %}
+    </script>
+</body>
+</html>

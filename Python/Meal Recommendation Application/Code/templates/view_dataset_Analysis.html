@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Dataset Graphs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            width: 80%;
+            height: 400px;
+        }
+
+        .chart-container {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Food Dataset Graphs</h1>
+
+    <div class="chart-container">
+        <h2>Bar Chart</h2>
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>Line Chart</h2>
+        <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>Pie Chart</h2>
+        <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>Radar Chart</h2>
+        <canvas id="radarChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>Doughnut Chart</h2>
+        <canvas id="doughnutChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2>Bubble Chart</h2>
+        <canvas id="bubbleChart"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Papa.parse('/static/Food_with_Category.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    // Select the best 100 rows (first 100 rows)
+                    const parsedData = results.data.slice(0, 100);
+
+                    // Extract categories and calories for the charts
+                    const categories = parsedData.map(row => row.FoodItem);
+                    const calories = parsedData.map(row => parseInt(row.calories, 10));
+
+                    // Data for bubble chart (dummy values for bubbles)
+                    const bubbleData = categories.map((category, index) => ({
+                        x: index,
+                        y: calories[index],
+                        r: Math.sqrt(calories[index]) * 2 // Bubble size
+                    }));
+
+                    // Bar Chart
+                    const barCtx = document.getElementById('barChart').getContext('2d');
+                    new Chart(barCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: calories,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+
+                    // Line Chart
+                    const lineCtx = document.getElementById('lineChart').getContext('2d');
+                    new Chart(lineCtx, {
+                        type: 'line',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: calories,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+
+                    // Pie Chart
+                    const pieCtx = document.getElementById('pieChart').getContext('2d');
+                    new Chart(pieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: calories,
+                                backgroundColor: categories.map(() => `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`),
+                                borderColor: categories.map(() => 'rgba(0, 0, 0, 1)'),
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+
+                    // Radar Chart
+                    const radarCtx = document.getElementById('radarChart').getContext('2d');
+                    new Chart(radarCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: calories,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+
+                    // Doughnut Chart
+                    const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+                    new Chart(doughnutCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: calories,
+                                backgroundColor: categories.map(() => `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`),
+                                borderColor: categories.map(() => 'rgba(0, 0, 0, 1)'),
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+
+                    // Bubble Chart
+                    const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+                    new Chart(bubbleCtx, {
+                        type: 'bubble',
+                        data: {
+                            datasets: [{
+                                label: 'Calories per 100g',
+                                data: bubbleData,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
