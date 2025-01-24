@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Document Verification</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .bg-blue-gradient {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+        }
+        .header-logo img {
+            height: 50px;
+        }
+        .profile-btn, .logout-btn {
+            color: white;
+        }
+    </style>
+</head>
+<body style="background-color: antiquewhite;">
+
+    <!-- Header -->
+    <header class="bg-blue-gradient text-white py-3">
+        <div class="container d-flex align-items-center justify-content-between">
+            <!-- Logo -->
+            <a href="/" class="header-logo">
+                <img src="{{ url_for('static', filename='Logo.png') }}" alt="Logo">
+            </a>
+
+            <!-- Balance Display -->
+            <div class="d-flex align-items-center">
+                <div class="me-3">Total Users: {{ User }}</div>
+                <div class="me-3">Total Balance: ${{ balance }}</div>
+                <div class="text-white {% if profit_loss_balance > 0 %} text-success {% elif profit_loss_balance < 0 %} text-danger {% else %} text-warning {% endif %}">
+                    Profit-Loss Balance: ${{ profit_loss_balance }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-1">{{ message }}</div>
+              {% endfor %}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Document List Table -->
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>Trading Application</h1>
+            <a href="/trade_history" class="btn btn-primary">Go to Trade History</a>
+        </div>
+        <h3 class="mb-4">User Documents Verification</h3>
+        <form action="{{ url_for('admin.admin_documents') }}" method="POST">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Aadhar</th>
+                        <th scope="col">PAN</th>
+                        <th scope="col">Live Photo</th>
+                        <th scope="col">Entry IP</th>
+                        <th scope="col">Entry MAC</th>
+                        <th scope="col">Entry Date</th>
+                        <th scope="col">Verify Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for document in documents %}
+                    <tr>
+                        <td>{{ document.user_id }}</td>
+                        <td>
+                            {% if document.aadhar %}
+                                <a href="data:image/jpeg;base64,{{ document.aadhar }}" target="_blank" onclick="openImageInFullscreen(event); return false;">
+                                    <img src="data:image/jpeg;base64,{{ document.aadhar }}" alt="Aadhar" width="100" height="100">
+                                </a>
+                            {% else %}
+                                <span class="text-danger">Not Uploaded</span>
+                            {% endif %}
+                        </td>
+                        
+                        <script>
+                            function openImageInFullscreen(event) {
+                                const imageUrl = event.currentTarget.href; // Get the image URL
+                                const img = new Image(); // Create a new image
+                                img.src = imageUrl; // Set the source to the image URL
+                        
+                                const w = window.open(""); // Open a new window
+                                w.document.write("<html><head><title>Full Screen Image</title></head><body style='margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: black;'><img src='" + imageUrl + "' style='max-width: 100%; max-height: 100%;'/></body></html>");
+                                w.document.close(); // Close the document to render the HTML
+                            }
+                        </script>
+                        <td>
+                            {% if document.pan %}
+                            <a href="data:image/jpeg;base64,{{ document.pan }}" target="_blank" onclick="openImageInFullscreen(event); return false;">
+                                <img src="data:image/jpeg;base64,{{ document.pan }}" alt="PAN" width="100" height="100">
+                            </a>                                
+                            {% else %}
+                                <span class="text-danger">Not Uploaded</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if document.live_photo %}
+                            <a href="data:image/jpeg;base64,{{ document.live_photo }}" target="_blank" onclick="openImageInFullscreen(event); return false;">
+                                <img src="data:image/jpeg;base64,{{ document.live_photo }}" alt="Live Photo" width="100" height="100">
+                            </a>                               
+                            {% else %}
+                                <span class="text-danger">Not Uploaded</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ document.entry_ip }}</td>
+                        <td>{{ document.entry_mac }}</td>
+                        <td>{{ document.entry_date }}</td>
+                        <td>
+                            <input type="checkbox" name="verified_documents[]" value="{{ document.user_id }}"> <!-- This will send the user_id -->
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No documents available for verification.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+            </table>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Verify Selected Documents</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Trades</title>
+    <style>
+        /* Styling for a more modern and attractive look */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f7f7f7;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .dropdown-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-section select, .dropdown-section input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .dropdown-section input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-section input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .no-trades {
+            text-align: center;
+            font-size: 18px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>
+            {% if selected_trade_type %}
+                Your {{ selected_trade_type }} Trades
+            {% else %}
+                Your Buy Trades
+            {% endif %}
+        </h1>
+    
+        <!-- Form for Filtering Trades -->
+        <form method="POST" action="/filter_trades">  <!-- Update the action to your filter_trades endpoint -->
+            <div class="dropdown-section">
+                <div>
+                    <label for="balance">Select Option: </label>
+                    <select id="balance" name="balance">
+                        <option value="Buy">Buy</option>
+                        <option value="Sell">Sell</option>
+                        <option value="auto_termination">Auto Termination</option>
+                    </select>
+                </div>
+    
+                <div>
+                    <label for="from">From: </label>
+                    <input type="date" id="from" name="from">
+                    
+                    <label for="to">To: </label>
+                    <input type="date" id="to" name="to">
+                </div>
+    
+                <div>
+                    <input type="submit" value="Submit">
+                </div>
+            </div>
+        </form>
+    
+        <!-- Table Section for Showing Trades -->
+        {% if trades %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Buy Date</th>
+                    <th>Sell Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trade in trades %}
+                <tr>
+                    <td>{{ trade.trade_status }}</td>
+                    <td>{{ trade.trade_type }}</td>
+                    <td>{{ trade.trade_price }}</td>
+                    <td>{{ trade.trade_amount }}</td>
+                    <td>{{ trade.open_time }}</td>
+                    <td>{{ trade.close_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="no-trades">No trades found</p>
+        {% endif %}
+    </div>
+</body>
+</html>

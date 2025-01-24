@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #444;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header, .modal-footer {
+            border: none;
+        }
+
+        .page-title {
+            font-size: 30px;
+            font-weight: 600;
+            color: #004aad;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .capture-section {
+            border: 1px dashed #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .capture-section label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .btn-secondary, .btn-primary {
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .preview-container img {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            max-width: 80%;
+            height: auto;
+        }
+
+        .modal-footer button {
+            font-size: 16px;
+            padding: 8px 20px;
+            border-radius: 8px;
+        }
+
+        .btn-success {
+            margin-top: 10px;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .capture-btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="page-title">Document Verification</h2>
+
+        <!-- Document Upload Modal -->
+        <div class="modal show" id="documentUploadModal" tabindex="-1" aria-labelledby="documentUploadModalLabel"
+            aria-hidden="true" style="display: block;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="documentUploadModalLabel">Upload Documents & Live Photo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="documentUploadForm">
+                            <!-- Aadhar Capture -->
+                            <div class="capture-section">
+                                <label for="aadharCapture">Capture Aadhar</label>
+                                <div class="capture-btn-container">
+                                    <input type="text" class="form-control mb-2" id="aadharCapture" readonly>
+                                    <button type="button" class="btn btn-secondary" onclick="openCamera('aadhar')">
+                                        <i class="fas fa-camera"></i> Take Aadhar Photo
+                                    </button>
+                                </div>
+                                <div id="aadharPreview" class="preview-container">
+                                    <img id="existingAadharImage" alt="Aadhar Image">
+                                </div>
+                            </div>
+
+                            <!-- PAN Capture -->
+                            <div class="capture-section">
+                                <label for="panCapture">Capture PAN</label>
+                                <div class="capture-btn-container">
+                                    <input type="text" class="form-control mb-2" id="panCapture" readonly>
+                                    <button type="button" class="btn btn-secondary" onclick="openCamera('pan')">
+                                        <i class="fas fa-camera"></i> Take PAN Photo
+                                    </button>
+                                </div>
+                                <div id="panPreview" class="preview-container">
+                                    <img id="existingPanImage" style="display:none;" alt="PAN Image">
+                                </div>
+                            </div>
+
+                            <!-- Live Photo Capture -->
+                            <div class="capture-section">
+                                <label for="livePhotoCapture">Capture Live Photo</label>
+                                <div class="capture-btn-container">
+                                    <input type="text" class="form-control mb-2" id="livePhotoCapture" readonly>
+                                    <button type="button" class="btn btn-secondary" onclick="openCamera('live')">
+                                        <i class="fas fa-camera"></i> Take Live Photo
+                                    </button>
+                                </div>
+                                <div id="livePreview" class="preview-container">
+                                    <img id="existingLiveImage" style="display:none;" alt="Live Image">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" style="width: 100%;" href="{{ url_for('Home') }}">Go to Home</a>
+                        <button type="button" class="btn btn-primary" id="uploadDocumentsBtn">Upload Documents</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let capturedImages = {
+            aadhar: '',
+            pan: '',
+            live: ''
+        };
+
+        function showExistingImages() {
+    fetch('/get_existing_images')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const existingAadharImage = document.getElementById('existingAadharImage');
+                const existingPanImage = document.getElementById('existingPanImage');
+                const existingLiveImage = document.getElementById('existingLiveImage');
+
+                // Set image sources if they exist
+                if (data.aadhar_image) {
+                    existingAadharImage.src = 'data:image/jpeg;base64,' + data.aadhar_image; // Adjust MIME type as necessary
+                    existingAadharImage.style.display = 'block';
+                }
+
+                if (data.pan_image) {
+                    existingPanImage.src = 'data:image/jpeg;base64,' + data.pan_image; // Adjust MIME type as necessary
+                    existingPanImage.style.display = 'block';
+                }
+
+                if (data.live_image) {
+                    existingLiveImage.src = 'data:image/jpeg;base64,' + data.live_image; // Adjust MIME type as necessary
+                    existingLiveImage.style.display = 'block';
+                }
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching images:', error);
+        });
+}
+
+
+        showExistingImages();
+
+        async function openCamera(documentType) {
+    const inputId = {
+        aadhar: 'aadharCapture',
+        pan: 'panCapture',
+        live: 'livePhotoCapture'
+    }[documentType];
+
+    const previewDiv = document.getElementById(documentType + 'Preview');
+    const video = document.createElement('video');
+    const canvas = document.createElement('canvas');
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.play();
+
+        previewDiv.innerHTML = '';
+        previewDiv.appendChild(video);
+
+        const captureButton = document.createElement('button');
+        captureButton.textContent = "Capture Photo";
+        captureButton.className = "btn btn-success mt-2";
+        previewDiv.appendChild(captureButton);
+
+        captureButton.onclick = function () {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const imgData = canvas.toDataURL('image/png');
+
+            capturedImages[documentType] = imgData;
+            document.getElementById(inputId).value = "Image captured";
+
+            const imgPreview = document.createElement('img');
+            imgPreview.src = imgData;
+            imgPreview.alt = "Captured Image";
+            imgPreview.style.maxWidth = '100%';
+            previewDiv.innerHTML = '';
+            previewDiv.appendChild(imgPreview);
+
+            stream.getTracks().forEach(track => track.stop());
+        };
+    } catch (err) {
+        console.error("Error accessing camera: " + err);
+        alert("Unable to access camera.");
+    }
+}
+
+document.getElementById('uploadDocumentsBtn').onclick = async function () {
+    try {
+        const response = await fetch('/save_live_image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(capturedImages)  // Send captured images as JSON
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            alert('Documents uploaded successfully');
+        } else {
+            alert('Failed to upload documents: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while uploading documents.');
+    }
+};
+
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page - Share Marketing Insights</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>       
+        .bg-blue-gradient {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+        }
+        .header-logo img {
+            height: 50px;
+        }
+        .profile-btn {
+            color: white;
+        }
+        .logout-btn {
+            color: white;
+        }
+    </style>
+</head>
+<body style="background-color:antiquewhite;">
+
+<!-- Header -->
+<header class="bg-blue-gradient text-white py-3">
+    <div class="container d-flex align-items-center justify-content-between">
+        <!-- Logo -->
+        <a href="/" class="header-logo">
+            <img src="{{ url_for('static', filename='Logo.png') }}" alt="Logo">
+        </a>
+
+        
+        <!-- Balance Display -->
+<div class="d-flex align-items-center me-3">
+    <div class="text-white me-3 
+        {% if balance > 0 %} text-yellow 
+        {% elif balance < 0 %} text-danger 
+        {% else %} text-warning 
+        {% endif %}">
+        Balance: ${{ balance }}
+    </div>
+    <div class="text-white me-3 
+        {% if transaction_balance > 0 %} text-success 
+        {% elif transaction_balance < 0 %} text-danger 
+        {% else %} text-warning 
+        {% endif %}">
+        Transaction Balance: ${{ transaction_balance }}
+    </div>
+    <div class="text-white me-3 
+        {% if profit_loss_balance > 0 %} text-success 
+        {% elif profit_loss_balance < 0 %} text-danger 
+        {% else %} text-warning 
+        {% endif %}">
+        Profit-Loss Balance: ${{ profit_loss_balance }}
+    </div>
+</div>
+
+
+        <!-- Profile, Add Balance, and Logout Buttons -->
+        <div class="d-flex">
+            <a href="#" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#addBalanceModal">Add Balance</a>
+            <a href="#" class="btn btn-outline-light profile-btn me-2" data-bs-toggle="modal" data-bs-target="#profileModal">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="{{ url_for('live_photo') }}" class="btn btn-outline-light profile-btn me-2">
+                <i class="fas fa-user"></i> Document Verification
+            </a>                   
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+
+   <!-- Add Balance Modal -->
+<div class="modal fade" id="addBalanceModal" tabindex="-1" aria-labelledby="addBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="color:black">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBalanceModalLabel" style="color:black">Top Up Your Balance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBalanceForm">
+                    <!-- ATM Card Details Section -->
+                    <div class="mb-3">
+                        <label for="cardName" class="form-label">ATM Card Name</label>
+                        <input type="text" class="form-control" id="cardName" name="cardName" placeholder="Enter your card Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">ATM Card Number</label>
+                        <input type="text" class="form-control" id="cardNumber" name="cardNumber" placeholder="Enter your card number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiryDate" class="form-label">Expiry Date</label>
+                        <input type="text" class="form-control" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cvv" class="form-label">CVV</label>
+                        <input type="text" class="form-control" id="cvv" placeholder="CVV" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount to Add</label>
+                        <input type="number" class="form-control" id="amount" name="amount" placeholder="Enter amount" required>
+                    </div>
+                    <!-- Billing Address Section -->
+                    <h6 class="mb-3">Billing Address</h6>
+                    <div class="mb-3">
+                        <label for="address1" class="form-label">Address 1</label>
+                        <input type="text" class="form-control" id="address1" name="address1" placeholder="Enter your address1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address2" class="form-label">Address 2</label>
+                        <input type="text" class="form-control" id="address2" name="address2" placeholder="Address 2 (optional)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address3" class="form-label">Address 3</label>
+                        <input type="text" class="form-control" id="address3" name="address3" placeholder="Address 3 (optional)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <select class="form-control" id="country" name="country" required>
+                            <option value="">Select your country</option>
+                            <option value="US">United States</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="IN">India</option>
+                            <!-- Add more countries as needed -->
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="addBalanceBtn">Add Balance</button> <!-- Moved inside the form -->
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#addBalanceForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        $.ajax({
+            type: 'POST',
+            url: '/add_balance',
+            data: $(this).serialize(), // Serialize form data
+            success: function(response) {
+                // Handle success response (e.g., show a success message, close modal)
+                $('#addBalanceModal').modal('hide');
+                // Optionally, show a success message to the user
+                alert(response.message);
+            },
+            error: function(xhr) {
+                // Handle error response
+                alert('Error: ' + xhr.responseText);
+            }
+        });
+    });
+});
+</script>
+
+    
+
+</header>
+
+
+<!-- Trade Facilities Table -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+{% if messages %}
+    <div class="mb-3">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endwith %}
+
+<!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let companyChart = null; // Initialize as null
+
+    // Function to update the chart
+    function updateChart(assetId) {
+        const ctx = document.getElementById('companyChart').getContext('2d');
+
+        // Example data fetching - replace with actual data for the asset
+        const chartData = {
+            labels: ['January', 'February', 'March', 'April', 'May'], // Example labels
+            datasets: [{
+                label: 'Stock Price',
+                data: [100, 110, 105, 120, 115], // Example data - replace with actual prices
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 1
+            }]
+        };
+
+        // Destroy existing chart if it exists and is a Chart instance
+        if (companyChart instanceof Chart) {
+            companyChart.destroy();
+        }
+
+        // Create new chart
+        companyChart = new Chart(ctx, {
+            type: 'line', // Change to 'bar', 'pie', etc. as needed
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Handle Company Click
+    $(document).on('click', '.company-link', function(e) {
+        e.preventDefault(); // Prevent default anchor behavior
+        const assetId = $(this).data('asset-id'); // Get the asset ID from the clicked link
+
+        // Update the chart with data for the selected asset
+        updateChart(assetId);
+    });
+</script>
+
+
+<!-- Trade Facilities Table -->
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Trading Application</h1>
+        <a href="/trade_history" class="btn btn-primary">Go to Trade History</a>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+    <table id="share-price-table" class="table">
+        <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="#" class="company-Name" data-asset-id="1">Company A</a></td>
+                <td class="price">$100.00</td>
+                <td class="change text-success">+2.00%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="1">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="1" disabled>Sell</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Company B</td>
+                <td class="price">$150.00</td>
+                <td class="change text-danger">-1.50%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="2">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="2" disabled>Sell</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Company C</td>
+                <td class="price">$180.00</td>
+                <td class="change text-danger">-1.80%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="3">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="3" disabled>Sell</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Company D</td>
+                <td class="price">$250.00</td>
+                <td class="change text-danger">1.50%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="4">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="4" disabled>Sell</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Company E</td>
+                <td class="price">$350.00</td>
+                <td class="change text-danger">2.50%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="5">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="5" disabled>Sell</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Company F</td>
+                <td class="price">$450.00</td>
+                <td class="change text-danger">3.50%</td>
+                <td>
+                    <button class="btn btn-success buy-button" data-asset-id="6">Buy</button>
+                    <button class="btn btn-warning sell-button" data-asset-id="6" disabled>Sell</button>
+                </td>
+            </tr>           
+            <!-- Add more assets as needed -->
+        </tbody>
+    </table>
+    </div>
+        <div class="col-md-6">
+             <canvas id="companyChart" width="400" height="300"></canvas>
+        </div>
+</div>
+</div>
+
+<!-- Sell Modal HTML -->
+<div id="tradeModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Trades to Sell</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Trade list will be populated here -->
+                <div id="tradeList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="confirmSellButton" class="btn btn-primary">Sell Selected Trades</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let userTrades = []; // Array to store user trades
+
+    $(document).ready(function() {
+        // Function to update share prices periodically
+        function updateSharePrices() {
+            const prices = [
+                { name: 'Company A', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+                { name: 'Company B', price: (Math.random() * 300).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+                { name: 'Company C', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+                { name: 'Company D', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+                { name: 'Company E', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+                { name: 'Company F', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' }
+            ];
+
+            $('#share-price-table tbody tr').each(function(index) {
+                if (prices[index]) {
+                    const priceElement = $(this).find('.price');
+                    const changeElement = $(this).find('.change');
+
+                    priceElement.text(`$${prices[index].price}`);
+                    changeElement.text(prices[index].change);
+
+                    // Update change color dynamically
+                    const changeValue = parseFloat(prices[index].change);
+                    changeElement.removeClass('text-success text-danger');
+                    changeElement.addClass(changeValue >= 0 ? 'text-success' : 'text-danger');
+                }
+            });
+        }
+
+        // Fetch user trades from the server when the page loads
+        $.ajax({
+            url: '/get_user_trades',  // Your server route to get user trades
+            type: 'GET',
+            success: function(response) {
+                userTrades = response.trades;  // Assume this returns an array of user trades
+                updateSellButtonStatus();
+            },
+            error: function(error) {
+                console.error("Error fetching trades: ", error.responseText);
+            }
+        });
+
+        // Function to enable/disable sell button based on user trades
+        function updateSellButtonStatus() {
+        $('.sell-button').each(function() {
+            const $sellButton = $(this);
+            const assetId = $sellButton.data('asset-id');
+
+            // Check if the user has any trades for this asset
+            const hasTrades = userTrades.some(trade => trade.asset_id === assetId && trade.trade_type === 'Buy');
+            
+            // Enable/Disable sell button
+            $sellButton.prop('disabled', !hasTrades);
+        });
+    }
+
+        // Handle Buy Button Click
+        $('.buy-button').click(function() {
+            const $buyButton = $(this);
+            const assetId = $buyButton.data('asset-id');
+             // Get the trade name and price
+            const tradeName = $buyButton.closest('tr').find('.company-Name').text();  // Assumes the trade name has a class of 'trade-name'
+            const tradePrice = parseFloat($buyButton.closest('tr').find('.price').text().replace('$', ''));
+    
+            // Display trade name and price in the prompt
+            const tradeAmount = prompt(`Enter trade amount for ${tradeName} at $${tradePrice}:`);
+
+            if (tradeAmount) {
+                // AJAX request to perform buy action
+                $.ajax({
+                    url: '/place_trade', // Your server route to handle trade
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        asset_id: assetId,
+                        trade_type: 'buy',
+                        trade_amount: tradeAmount,
+                        trade_price: tradePrice
+                    }),
+                    success: function(response) {
+                        alert("Bought successfully!");
+
+                        // Enable Sell button after buying shares
+                        $buyButton.siblings('.sell-button').prop('disabled', false); // Enable Sell button
+
+                        // Update userTrades array with the new trade (assuming response contains the new trade details)
+                        userTrades.push({
+                            asset_id: assetId,
+                            trade_type: 'buy',
+                            trade_amount: tradeAmount,
+                            trade_price: tradePrice,
+                            trade_id: response.trade_id // Assume response contains the new trade ID
+                        });
+                    },
+                    error: function(error) {
+                        console.error("Error in buy action: ", error.responseText);
+                        alert("Error: " + error.responseText);
+                    }
+                });
+            }
+        });
+
+         // Handle Sell Button Click
+         $('.sell-button').click(function() {
+    const assetId = $(this).data('asset-id');
+    const tradesForAsset = userTrades.filter(trade => trade.asset_id === assetId && trade.trade_type === 'Buy');
+
+    if (tradesForAsset.length > 0) {
+        let tradeListHtml = '<ul>';
+        tradesForAsset.forEach(trade => {
+            tradeListHtml += `<li>
+                                Trade ID: ${trade.trade_id}, Amount: ${trade.trade_amount}, Price: $${trade.trade_price}
+                                <input type="checkbox" name="tradesToSell" value="${trade.trade_id}">
+                              </li>`;
+        });
+        tradeListHtml += '</ul>';
+        $('#tradeList').html(tradeListHtml);
+        $('#tradeModal').modal('show');
+    } else {
+        alert('No trades available to sell for this asset.');
+    }
+});
+
+// Handle Confirm Sell Button in Modal
+$('#confirmSellButton').click(function() {
+    const selectedTradeIds = $('input[name="tradesToSell"]:checked').map(function() {
+        return $(this).val();
+    }).get();
+
+    if (selectedTradeIds.length === 0) {
+        alert('Please select at least one trade to sell.');
+        return;
+    }
+
+    const sellPromises = selectedTradeIds.map(tradeId => {
+        const selectedTrade = userTrades.find(trade => trade.trade_id === parseInt(tradeId, 10));
+
+        if (!selectedTrade) {
+            console.error(`Trade with ID ${tradeId} not found.`);
+            return Promise.reject(`Trade with ID ${tradeId} not found.`);
+        }
+
+        // Correctly select the price element
+        const priceElement = $(`#share-price-table tbody tr`).find(`a[data-asset-id="${selectedTrade.asset_id}"]`).closest('tr').find('.price');
+
+        if (priceElement.length === 0) {
+            console.error(`Price element for asset ID ${selectedTrade.asset_id} not found.`);
+            alert("Price not found for the selected asset.");
+            return Promise.reject("Price not found.");
+        }
+
+        const priceText = priceElement.text().replace('$', '');
+        const currentSellPrice = parseFloat(priceText);
+
+        // Validate the sell price
+        if (isNaN(currentSellPrice)) {
+            console.error("Current sell price is not a number.");
+            alert("Trade price is invalid.");
+            return Promise.reject("Trade price is invalid.");
+        }
+
+        console.log(`Selling Trade - ID: ${selectedTrade.trade_id}, Asset ID: ${selectedTrade.asset_id}, Amount: ${selectedTrade.trade_amount}, Price: ${currentSellPrice}`);
+
+        return $.ajax({
+            url: '/place_trade',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                asset_id: selectedTrade.asset_id,
+                trade_type: 'sell',
+                trade_amount: selectedTrade.trade_amount,
+                trade_price: currentSellPrice,
+                trade_id: selectedTrade.trade_id
+            })
+        });
+    });
+
+    Promise.all(sellPromises)
+        .then(responses => {
+            alert("Sold selected trades successfully!");
+            selectedTradeIds.forEach(tradeId => {
+                userTrades = userTrades.filter(trade => trade.trade_id !== parseInt(tradeId, 10));
+            });
+            $('#tradeModal').modal('hide');
+             // Clear trade list in the modal for next time
+             $('#tradeList').html('');
+            updateSellButtonStatus();
+        })
+        .catch(error => {
+            console.error("Error in sell action: ", error);
+            alert("Error selling trades: " + error.responseText);
+        });
+});
+
+        // Update share prices every 5 seconds
+        setInterval(updateSharePrices, 5000);
+    });
+</script>
+
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  let userTrades = []; // Initialize an array to store user trades
+
+$(document).ready(function() {
+    // Check for existing trades on page load
+    checkExistingTrades();
+
+    function checkExistingTrades() {
+    $.ajax({
+        url: '/get_buy_trades',
+        asset_id: data-asset-id,
+        type: 'GET',
+        success: function(response) {
+    if (response && Array.isArray(response.trades)) {
+        userTrades = response.trades; // Store user trades in the array
+
+        userTrades.forEach(function(trade) {
+            const buyButton = $(`.buy-button[data-asset-id="${trade.asset_id}"]`);
+            const sellButton = $(`.sell-button[data-asset-id="${trade.asset_id}"]`);
+
+            // Enable sell button if user has already bought shares
+            // buyButton.prop('disabled', true);  // Disable buy after purchase
+            sellButton.prop('disabled', false); // Enable sell
+        });
+
+        // Update share prices after trades are loaded
+        updateSharePrices();
+        } else {
+        console.error("Invalid response format: ", response);
+        }
+    },
+        error: function(error) {
+            console.error("Error fetching trades: " + error.responseText);
+        }
+    });
+}
+
+
+
+function updateSharePrices() {
+    const prices = [
+        { name: 'Company A', price: (Math.random() * 200).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company B', price: (Math.random() * 300).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company C', price: (Math.random() * 150).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company D', price: (Math.random() * 250).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company E', price: (Math.random() * 180).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company F', price: (Math.random() * 90).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company G', price: (Math.random() * 320).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' },
+        { name: 'Company H', price: (Math.random() * 275).toFixed(2), change: ((Math.random() * 4) - 2).toFixed(2) + '%' }
+    ];
+
+    $('.card').each(function(index) {
+        if (prices[index]) {
+            const priceElement = $(this).find('.price');
+            const changeElement = $(this).find('.change');
+            
+            priceElement.text(`$${prices[index].price}`);
+            changeElement.text(prices[index].change);
+
+            // Optionally update change color dynamically
+            const changeValue = parseFloat(prices[index].change);
+            changeElement.removeClass('text-success text-danger');
+            changeElement.addClass(changeValue >= 0 ? 'text-success' : 'text-danger');
+        }
+    });
+}
+
+
+
+    // Auto-sell logic function
+    function handleAutoSell(trade, currentPrice, sellButton) {
+    const buyPrice = parseFloat(trade.trade_price);
+    const buyAmount = parseFloat(trade.trade_amount);
+    const assetId = trade.asset_id;
+    const tradeId = trade.trade_id;
+
+    const profitLoss = (currentPrice - buyPrice) * buyAmount;
+
+    // Send the auto-sell request to the server
+    $.ajax({
+        url: '/place_trade',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            trade_type: 'sell',
+            trade_id: tradeId,
+            trade_amount: buyAmount,
+            trade_price: currentPrice,
+            profit_loss: profitLoss,
+            asset_id: assetId,
+            stop_loss: null,
+            take_profit: null,
+            leverage: null,
+            trade_status: 'Auto'
+        }),
+        success: function(response) {
+            alert(`Auto-sell successful! Profit/Loss: $${profitLoss.toFixed(2)}`);
+
+            // Update UI after sell
+            sellButton.prop('disabled', true);  // Disable sell button after auto-sell
+            const buyButton = $(`.buy-button[data-asset-id="${assetId}"]`);
+            buyButton.prop('disabled', false); // Enable buy button
+        },
+        error: function(error) {
+            console.error("Error during auto-sell: " + error.responseText);
+        }
+    });
+}
+
+
+// Handle button click for buy
+$('.buy-button').click(function() {
+    const $buyButton = $(this);
+    const assetId = $buyButton.data('asset-id');
+    const tradePrice = parseFloat($buyButton.closest('tr').find('.price').text().replace('$', ''));
+    const tradeAmount = prompt("Enter trade amount:");
+
+    if (tradeAmount) {
+        // AJAX request to perform buy action
+        $.ajax({
+            url: '/place_trade', // Your server route to handle trade
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                asset_id: assetId,
+                trade_type: 'buy',
+                trade_amount: tradeAmount,
+                trade_price: tradePrice
+            }),
+            success: function(response) {
+                alert("Bought successfully!");
+
+                // Enable Sell button after buying shares
+                $buyButton.siblings('.sell-button').prop('disabled', false);  // Enable Sell button
+            },
+            error: function(error) {
+                console.error("Error in buy action: ", error.responseText);
+                alert("Error: " + error.responseText);
+            }
+        });
+    }
+});
+
+// // Handle button click for sell
+// $('.sell-button').click(function() {
+//     const $sellButton = $(this);
+//     const assetId = $sellButton.data('asset-id');
+//     const tradePrice = parseFloat($sellButton.closest('tr').find('.price').text().replace('$', ''));
+//     const tradeAmount = prompt("Enter amount to sell:");
+
+//     if (tradeAmount) {
+//         // AJAX request to perform sell action
+//         $.ajax({
+//             url: '/place_trade',  // Your server route to handle trade
+//             type: 'POST',
+//             contentType: 'application/json',
+//             data: JSON.stringify({
+//                 asset_id: assetId,
+//                 trade_type: 'sell',
+//                 trade_amount: tradeAmount,
+//                 trade_price: tradePrice,
+//                 trade_status: 'Closed'
+//             }),
+//             success: function(response) {
+//                 alert("Sold successfully!");
+
+//                 // Disable Sell button after selling shares
+//                 $sellButton.prop('disabled', true);  // Disable Sell button
+//             },
+//             error: function(error) {
+//                 console.error("Error in sell action: ", error.responseText);
+//                 alert("Error: " + error.responseText);
+//             }
+//         });
+//     }
+// });
+
+// Handle sell action after selecting a trade from the modal
+$('#confirmSellButton').click(function() {
+    const selectedTradeId = $('input[name="trade_id"]:checked').val();
+
+    if (selectedTradeId) {
+        const tradeAmount = prompt("Enter amount to sell:");
+
+        if (tradeAmount) {
+            // AJAX request to perform the sell action
+            $.ajax({
+                url: '/place_trade',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    trade_id: selectedTradeId,
+                    trade_type: 'sell',
+                    trade_amount: tradeAmount,
+                    trade_status: 'Closed'
+                }),
+                success: function(response) {
+                    alert("Sold successfully!");
+                    $('#tradeModal').modal('hide'); // Close the modal
+                },
+                error: function(error) {
+                    alert("Error: " + error.responseText);
+                }
+            });
+        }
+    } else {
+        alert("Please select a trade to sell.");
+    }
+});
+
+  // Update share prices every 5 seconds
+        setInterval(updateSharePrices, 5000);
+    });
+</script> -->
+
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">Profile Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('save_profile') }}" method="POST" onsubmit="return validateForm();">
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                               value="{{ user.first_name if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                               value="{{ user.last_name if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" 
+                               value="{{ user.address if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="city" name="city" 
+                               value="{{ user.city if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <input type="text" class="form-control" id="country" name="country" 
+                               value="{{ user.country if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="postal_code" class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" id="postal_code" name="postal_code" 
+                               value="{{ user.postal_code if user else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_of_birth" class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                               value="{{ user.date_of_birth.strftime('%Y-%m-%d') if user else '' }}" required>
+                    </div>
+                    <!-- <div class="mb-3">
+                        <label for="phone_number" class="form-label">Mobile No</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" 
+                               value="{{ user.phone_number if user else '' }}" required>
+                    </div> -->
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<!-- Auto-hide Flash Message after 5 seconds -->
+<script>
+    setTimeout(function() {
+        var alert = document.querySelector('.alert');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 5000); // 5 seconds delay before hiding the message
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function validateForm() {
+    const firstName = document.getElementById('first_name').value;
+    const lastName = document.getElementById('last_name').value;
+    const phoneNumber = document.getElementById('phone_number').value;
+    const postal_code = document.getElementById('postal_code').value;
+
+    const namePattern = /^[A-Za-z\s]+$/;  // Only letters and spaces
+    const phonePattern = /^\d{10}$/;      // Exactly 10 digits
+    const pincodePattern = /^\d{06}$/;      // Exactly 10 digits
+
+    if (!namePattern.test(firstName)) {
+        alert('First name must contain only letters.');
+        return false;
+    }
+    if (!namePattern.test(lastName)) {
+        alert('Last name must contain only letters.');
+        return false;
+    }
+    if (!phonePattern.test(phoneNumber)) {
+        alert('Mobile number must be exactly 10 digits.');
+        return false;
+    }
+    if (!pincodePattern.test(postal_code)) {
+      alert('Mobile number must be exactly 06 digits.');
+      return false;
+  }
+
+    return true;  // If all checks pass
+}
+    </script>
+</body>
+</html>
