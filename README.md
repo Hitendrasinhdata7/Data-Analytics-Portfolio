@@ -116,7 +116,7 @@ Welcome to my **Data Analytics Portfolio**! This repository showcases my skills 
 ## 📧 **Contact**
 If you have any questions or would like to collaborate, feel free to reach out:
 - **Email:** [Hitendrasinh.data7@gmail.com](mailto:Hitendrasinh.data7@gmail.com)
-- **LinkedIn:** [Hitendrasinh Parmar](https://www.linkedin.com/in/hitendrasinhdata7)
+- **LinkedIn:** [Hitendrasinh Rathod](https://www.linkedin.com/in/hitendrasinhdata7)
 
 ---
 
