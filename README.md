@@ -104,6 +104,21 @@ Welcome to my **Data Analytics Portfolio**! This repository showcases my skills 
 
 ---
 
+🛠️ Tableau Projects
+1️⃣ Customer Insights & Engagement Dashboard
+📌 Objective: Developed an interactive Tableau dashboard to analyze customer demographics, user roles, and historical interactions.
+
+🔍 Key Features:
+✅ Built with Tableau – Interactive and dynamic visualizations.
+✅ Customer Demographics Analysis – Segmentation by age, gender, and location.
+✅ User Roles & Team Distribution – Organizational structure insights.
+✅ Customer Engagement Trends – Historical interaction analysis.
+✅ Interactive Filters – Customizable views by date, role, and team.
+
+💾 Tools Used: Tableau, Excel, Data Blending, Calculated Fields, Time-Series Analysis
+
+---
+
 ## 📂 **How to Use This Repository**
 1. Browse through the folders corresponding to each tool (Excel, Machine Learning, Power BI, Python, SQL).
 2. Each project folder contains:
